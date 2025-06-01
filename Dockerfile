@@ -11,4 +11,4 @@ WORKDIR /home/labDirectory
 RUN mkdir /home/.evaluationScripts
 
 # Step 5: Setup the directories
-CMD [ "/bin/bash", "-c", "bash /home/.evaluationScripts/.bodhiFiles/init.sh; while :; do sleep 10; done" ]
+CMD [ "/bin/bash", "-c", "bash /home/.evaluationScripts/.bodhiFiles/init.sh" ]
