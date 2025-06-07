@@ -1,7 +1,6 @@
 #!/bin/bash
 
-cp /home/labDirectory/* /home/.evaluationScripts/src/components/
-cd /home/.evaluationScripts
-npm test > /dev/null 2>&1
-python3 .bodhiFiles/autograder.py
-rm .bodhiFiles/out.txt
+cd /home/.evaluationScripts/.bodhiFiles
+[ -f answer.txt ] && rm answer.txt
+mv /home/labDirectory/answer.txt /home/.evaluationScripts/.bodhiFiles/
+python3 autograder.py

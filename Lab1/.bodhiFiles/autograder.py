@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import re, json, os, copy
+import json, os, copy, subprocess
 
 os.system('clear')
 
@@ -8,49 +8,71 @@ overall = {
     "data": []
 }
 
-# YOUR Evaluation Code here
+# Template
 template = {
     "testid": 1,
     "status": "fail",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed!"
-    }
+}
 
 path = '/home/.evaluationScripts/'
 
-inputFile = path+'.bodhiFiles/out.txt'
-jsonPath = path+'evaluate.json'
+inputFile = path + '.bodhiFiles/answer.txt'
+jsonPath = path + 'evaluate.json'
+goToWorkDir = "cd /home/labDirectory && "
+
+# Define the correct command and expected output
+correct_commands = ["ls -RSa", "ls -a"]  # replace with expected commands
+correct_outputs = []
+try:
+    for command in correct_commands:
+        # Run the command and capture the output
+        command = goToWorkDir + command  # Ensure the command runs in the correct directory
+        output = subprocess.check_output(command, shell=True, text=True).strip()
+        correct_outputs.append(output)
+except Exception as e:
+    correct_output = ""
+    print("Error running correct command:", e)
 
 if os.path.isfile(inputFile):
     with open(inputFile, 'r') as file:
         lines = file.readlines()
 
-    reqLines = []
-    for line in lines:
-        if re.search(r'✕|✓', line):
-            reqLines.append(line.strip())
+    student_commands = []
+    for i, line in enumerate(lines):
+        line = line.strip()
+        student_commands.append(line)
 
-    for i,result in enumerate(reqLines):
+    for i, correct_output in enumerate(correct_outputs):
+        line = student_commands[i] if i < len(student_commands) else ""
+        student_command = goToWorkDir + line
         entry = copy.deepcopy(template)
         entry["testid"] = i
-        if '✓' in result:
-            entry["message"] = f"{result.split('(')[0][1:].strip()}: PASS"
-            entry["score"] = 1
-            entry["status"] = "pass"
-        else:
-            entry['message'] = f"{result.split('(')[0][1:].strip()}: FAIL"
+        try:
+            student_output = subprocess.check_output(student_command, shell=True, text=True).strip()
+            if student_output == correct_output:
+                entry["message"] = f"{line}: PASS"
+                entry["score"] = 1
+                entry["status"] = "pass"
+            else:
+                entry["message"] = f"{line}: FAIL - Output mismatch"
+        except subprocess.CalledProcessError as e:
+            entry["message"] = f"{line}: FAIL - Command not found"
+
         overall["data"].append(entry)
 else:
     entry = copy.deepcopy(template)
-    entry['message'] = f"Failed to get the npm test result. Since you have not run the evaluate the result is not generated yet."
-    overall["data"].append([entry])
+    entry['message'] = f"answer.txt not found. Evaluation result not generated."
+    overall["data"].append(entry)
 
 # Store evaluation results
-with open(jsonPath,'w',encoding='utf-8') as f:
-    json.dump(overall,f,indent=4)
+with open(jsonPath, 'w', encoding='utf-8') as f:
+    json.dump(overall, f, indent=4)
 
 # Show evaluation results
-with open(jsonPath,'r',encoding='utf-8') as f:
+with open(jsonPath, 'r', encoding='utf-8') as f:
     for line in f.readlines():
         print(line)
+

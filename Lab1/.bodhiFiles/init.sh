@@ -4,6 +4,7 @@ if [ -f "/opt/check.txt" ]; then
 else
     cp -r /home/.evaluationScripts/.bodhiFiles/studentDirectory/* /home/labDirectory/
     chmod ugo+r+w /home/labDirectory/*
+    touch /home/labDirectory/answer.txt
     echo Done > /opt/check.txt
 fi
 
