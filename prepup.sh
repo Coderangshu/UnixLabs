@@ -8,12 +8,12 @@ fi
 
 lab=$1
 
-studentFile="$lab/.bodhiFiles/studentFiles"
+studentDirectory="$lab/.bodhiFiles/studentDirectory"
 
 rsync -a --exclude="node_modules" "$lab/" ".evaluationScripts/"
 tar -czvf instructor.tgz .evaluationScripts
 
-rsync -a --exclude="node_modules" "$studentFile/" "labDirectory/"
+rsync -a --exclude="node_modules" "$studentDirectory/" "labDirectory/"
 tar -czvf student.tgz labDirectory
 
 # Remove the copied and renamed folders
