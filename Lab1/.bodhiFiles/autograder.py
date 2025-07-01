@@ -24,7 +24,7 @@ jsonPath = path + 'evaluate.json'
 goToWorkDir = "cd /home/labDirectory && "
 
 # Define the correct command and expected output
-correct_commands = ["ls -RSa", "ls -a"]  # replace with expected commands
+correct_commands = ["ls -RSa", "ls -lhRS | grep -v '^total' | grep -v ':$' | head -n 1"]  # replace with expected commands
 correct_outputs = []
 try:
     for command in correct_commands:
