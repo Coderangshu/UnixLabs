@@ -10,11 +10,20 @@ lab=$1
 
 studentDirectory="$lab/.bodhiFiles/studentDirectory"
 
-rsync -a --exclude="node_modules" "$lab/" ".evaluationScripts/"
+# Copy lab directory to .evaluationScripts, excluding node_modules and .bodhiFiles/.solutions
+rsync -a \
+    --exclude="node_modules" \
+    --exclude=".bodhiFiles/.solutions" \
+    "$lab/" ".evaluationScripts/"
+
+# Create instructor archive
 tar -czvf instructor.tgz .evaluationScripts
 
+# Copy student directory to labDirectory, excluding node_modules
 rsync -a --exclude="node_modules" "$studentDirectory/" "labDirectory/"
+
+# Create student archive
 tar -czvf student.tgz labDirectory
 
-# Remove the copied and renamed folders
+# Remove temporary directories
 rm -rf .evaluationScripts labDirectory
