@@ -11,7 +11,7 @@ overall = {
 # Template
 template = {
     "testid": 1,
-    "status": "fail",
+    "status": "failure",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed!"
@@ -57,9 +57,9 @@ if os.path.isfile(inputFile):
                 entry["score"] = 1
                 entry["status"] = "success"
             else:
-                entry["message"] = f"{line}: failure - Output mismatch"
+                entry["message"] = f"{line}: FAIL - Output mismatch"
         except subprocess.CalledProcessError as e:
-            entry["message"] = f"{line}: failure - Command not found"
+            entry["message"] = f"{line}: FAIL - Command not found"
 
         overall["data"].append(entry)
 else:

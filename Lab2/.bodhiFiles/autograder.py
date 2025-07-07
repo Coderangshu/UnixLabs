@@ -8,7 +8,7 @@ overall = {
 
 template = {
     "testid": 1,
-    "status": "fail",
+    "status": "failure",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed!"
@@ -64,7 +64,7 @@ try:
                 if student_command.strip() == expected_cmd:
                     entry["message"] = f"{student_command}: PASS"
                     entry["score"] = 1
-                    entry["status"] = "pass"
+                    entry["status"] = "success"
                 else:
                     entry["message"] = f"{student_original}: PASS, but not minimal"
                     entry["score"] = 0.5

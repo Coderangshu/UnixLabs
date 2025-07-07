@@ -12,7 +12,7 @@ output_json = os.path.join("/home/.evaluationScripts", "evaluate.json")
 # Template
 template = {
     "testid": 1,
-    "status": "fail",
+    "status": "failure",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed"
@@ -71,7 +71,7 @@ for step in range(1, total_steps + 1):
     # Skip and mark pass for undo/redo test cases
     if step==4:
         if raw_commands == ['u']:
-            test["status"] = "pass"
+            test["status"] = "success"
             test["score"] = 1
             test["message"] = f"Task {step}: PASS (undo)"
             results["data"].append(test)
@@ -82,7 +82,7 @@ for step in range(1, total_steps + 1):
             continue
     elif step==5:
         if raw_commands == ['<C-r>']:
-            test["status"] = "pass"
+            test["status"] = "success"
             test["score"] = 1
             test["message"] = f"Task {step}: PASS (redo)"
             results["data"].append(test)
@@ -151,7 +151,7 @@ for step in range(1, total_steps + 1):
             diff_lines.append(f"Line {i}:\n  Expected: <missing>\n  Found:    {student_lines[i-1]}")
 
     if not diff_lines:
-        test["status"] = "pass"
+        test["status"] = "success"
         test["score"] = 1
         test["message"] = f"Task {step}: PASS"
     else:

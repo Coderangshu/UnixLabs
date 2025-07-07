@@ -15,7 +15,7 @@ Y_time = "2024-06-15 10:00:00"
 overall = {"data": []}
 template = {
     "testid": 0,
-    "status": "fail",
+    "status": "failure",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed!"
@@ -25,7 +25,7 @@ def add_result(testid, passed, message):
     entry = copy.deepcopy(template)
     entry["testid"] = testid
     entry["message"] = message
-    entry["status"] = "pass" if passed else "fail"
+    entry["status"] = "success" if passed else "failure"
     entry["score"] = 1 if passed else 0
     overall["data"].append(entry)
 

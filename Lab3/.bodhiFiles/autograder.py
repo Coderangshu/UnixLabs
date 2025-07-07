@@ -60,7 +60,7 @@ def norm(cmd:str) -> str:
 overall = {"data": []}
 TEMPLATE = {
     "testid": 0,
-    "status": "fail",
+    "status": "failure",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed!"
@@ -101,7 +101,7 @@ for idx, step in enumerate(steps):
     if step["check"]():
         # correct directory state ─ now decide minimal vs partial
         if norm(student_cmd) == norm(step["minimal"]):
-            entry.update({"status": "pass", "score": 1,
+            entry.update({"status": "success", "score": 1,
                           "message": f"{step['msg_ok']}: PASS"})
         else:
             entry.update({"status": "partial", "score": 0.5,

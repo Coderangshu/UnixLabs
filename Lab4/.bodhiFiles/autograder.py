@@ -11,7 +11,7 @@ overall = {
 # Template
 template = {
     "testid": 1,
-    "status": "fail",
+    "status": "failure",
     "score": 0,
     "maximum marks": 1,
     "message": "Autograder Failed!"
@@ -55,7 +55,7 @@ if os.path.isfile(inputFile):
             if student_output == correct_output:
                 entry["message"] = f"{line}: PASS"
                 entry["score"] = 1
-                entry["status"] = "pass"
+                entry["status"] = "success"
             else:
                 entry["message"] = f"{line}: FAIL - Output mismatch"
         except subprocess.CalledProcessError as e:
