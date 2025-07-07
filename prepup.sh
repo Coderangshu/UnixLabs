@@ -16,10 +16,18 @@ rsync -a \
     --exclude=".bodhiFiles/.solutions" \
     "$lab/" ".evaluationScripts/"
 
-# Step 2: Copy only files that are in Lab1 but NOT in $lab into .evaluationScripts
+# Step 2: Copy only files from Lab1 that are NOT in $lab, but skip .bodhiFiles/studentDirectory if present in both
+student_subdir=".bodhiFiles/studentDirectory"
+exclude_student_dir=""
+
+if [ -d "$lab/$student_subdir" ] && [ -d "$fullLab/$student_subdir" ]; then
+    exclude_student_dir="--exclude=$student_subdir"
+fi
+
 rsync -a \
     --exclude="node_modules" \
     --exclude=".bodhiFiles/.solutions" \
+    $exclude_student_dir \
     --ignore-existing \
     "$fullLab/" ".evaluationScripts/"
 
@@ -33,4 +41,5 @@ rsync -a --exclude="node_modules" "$studentDirectory/" "labDirectory/"
 tar -czvf student.tgz labDirectory
 
 # Step 6: Clean up
-rm -rf .evaluationScripts labDirectory
+#rm -rf .evaluationScripts labDirectory
+
