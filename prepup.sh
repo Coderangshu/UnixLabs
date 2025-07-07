@@ -41,5 +41,5 @@ rsync -a --exclude="node_modules" "$studentDirectory/" "labDirectory/"
 tar -czvf student.tgz labDirectory
 
 # Step 6: Clean up
-#rm -rf .evaluationScripts labDirectory
+rm -rf .evaluationScripts labDirectory
 
