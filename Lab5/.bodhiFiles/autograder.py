@@ -6,6 +6,7 @@ from datetime import datetime
 lab_dir = "/home/labDirectory"
 jsonPath = "/home/.evaluationScripts/evaluate.json"
 expected_txt_path = "/tmp/expected_combined.txt"
+answer_path = os.path.join(lab_dir, "answer.txt")
 combined_txt = "combined.txt"
 expected_files = ["file1.txt", "file2.txt", "file3.txt", "file4.txt", "combined.txt"]
 X_time = "2024-06-15 14:00:00"
@@ -37,9 +38,23 @@ def safe_read_lines(path):
     with os.fdopen(fd, 'r') as f:
         return f.readlines()
 
-# Move to lab directory
+# Step 1: Move to lab directory
 os.chdir(lab_dir)
 testid = 1
+
+# Step 2: Run the student's commands from answer.txt
+if os.path.exists(answer_path):
+    try:
+        subprocess.run(f"bash {answer_path}", shell=True, check=True, executable="/bin/bash")
+    except subprocess.CalledProcessError as e:
+        # Do not continue testing if script failed
+        with open(jsonPath, 'w') as f:
+            json.dump(overall, f, indent=4)
+        exit(1)
+else:
+    with open(jsonPath, 'w') as f:
+        json.dump(overall, f, indent=4)
+    exit(1)
 
 # Test 1: Check all required files exist
 missing_files = [f for f in expected_files if not os.path.isfile(f)]
@@ -97,10 +112,9 @@ except Exception as e:
     add_result(testid, False, f"Error checking timestamps: {e}")
 testid += 1
 
-# Save and print results
+# Final: Write and print results
 with open(jsonPath, 'w') as f:
     json.dump(overall, f, indent=4)
 
 with open(jsonPath, 'r') as f:
     print(f.read())
-
