@@ -42,4 +42,3 @@ tar -czvf student.tgz labDirectory
 
 # Step 6: Clean up
 rm -rf .evaluationScripts labDirectory
-
