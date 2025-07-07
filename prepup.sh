@@ -7,23 +7,30 @@ if [ "$#" -ne 1 ]; then
 fi
 
 lab=$1
-
+fullLab="Lab1"
 studentDirectory="$lab/.bodhiFiles/studentDirectory"
 
-# Copy lab directory to .evaluationScripts, excluding node_modules and .bodhiFiles/.solutions
+# Step 1: Copy the user's lab to .evaluationScripts (excluding node_modules and .solutions)
 rsync -a \
     --exclude="node_modules" \
     --exclude=".bodhiFiles/.solutions" \
     "$lab/" ".evaluationScripts/"
 
-# Create instructor archive
+# Step 2: Copy only files that are in Lab1 but NOT in $lab into .evaluationScripts
+rsync -a \
+    --exclude="node_modules" \
+    --exclude=".bodhiFiles/.solutions" \
+    --ignore-existing \
+    "$fullLab/" ".evaluationScripts/"
+
+# Step 3: Create instructor archive
 tar -czvf instructor.tgz .evaluationScripts
 
-# Copy student directory to labDirectory, excluding node_modules
+# Step 4: Copy studentDirectory to labDirectory
 rsync -a --exclude="node_modules" "$studentDirectory/" "labDirectory/"
 
-# Create student archive
+# Step 5: Create student archive
 tar -czvf student.tgz labDirectory
 
-# Remove temporary directories
-rm -rf .evaluationScripts labDirectory
+# Step 6: Clean up
+#rm -rf .evaluationScripts labDirectory
