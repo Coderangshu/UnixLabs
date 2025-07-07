@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-import json, os, copy, subprocess
+import json, os, copy, subprocess, filecmp
 
 os.system('clear')
 
-# The data Structure for final results to be stored in evaluate.json
+# Data structure for final results
 overall = {
     "data": []
 }
@@ -17,62 +17,63 @@ template = {
     "message": "Autograder Failed!"
 }
 
-path = '/home/.evaluationScripts/'
+# Paths
+base_path = '/home/.evaluationScripts/'
+input_file = base_path + '.bodhiFiles/answer.txt'
+json_path = base_path + 'evaluate.json'
+lab_path = '/home/labDirectory'
+expected_output_file = os.path.join(lab_path, 'expected.txt')
+student_output_file = os.path.join(lab_path, 'output.txt')  # students must redirect here
 
-inputFile = path + '.bodhiFiles/answer.txt'
-jsonPath = path + 'evaluate.json'
-goToWorkDir = "cd /home/labDirectory && "
-
-# Define the correct command and expected output
-correct_commands = ["head -n 50 example.txt | tail -n 10"]  # replace with expected commands
-correct_outputs = []
+# Prepare: generate expected output
 try:
-    for command in correct_commands:
-        # Run the command and capture the output
-        command = goToWorkDir + command  # Ensure the command runs in the correct directory
-        output = subprocess.check_output(command, shell=True, text=True).strip()
-        correct_outputs.append(output)
+    command = f"cd {lab_path} && head -n 50 example.txt | tail -n 10 > expected.txt"
+    subprocess.run(command, shell=True, check=True)
 except Exception as e:
-    correct_output = ""
-    print("Error running correct command:", e)
+    print("Error generating expected output:", e)
 
-if os.path.isfile(inputFile):
-    with open(inputFile, 'r') as file:
-        lines = file.readlines()
+# Check if student's answer.txt exists
+if os.path.isfile(input_file):
+    with open(input_file, 'r') as file:
+        student_commands = [line.strip() for line in file if line.strip()]
 
-    student_commands = []
-    for i, line in enumerate(lines):
-        line = line.strip()
-        student_commands.append(line)
-
-    for i, correct_output in enumerate(correct_outputs):
-        line = student_commands[i] if i < len(student_commands) else ""
-        student_command = goToWorkDir + line
+    # Evaluate each command (though likely there's only one)
+    for i, cmd in enumerate(student_commands):
         entry = copy.deepcopy(template)
-        entry["testid"] = i
+        entry["testid"] = i + 1
+
         try:
-            student_output = subprocess.check_output(student_command, shell=True, text=True).strip()
-            if student_output == correct_output:
-                entry["message"] = f"{line}: PASS"
-                entry["score"] = 1
-                entry["status"] = "success"
+            # Run the student's command
+            full_command = f"cd {lab_path} && {cmd}"
+            subprocess.run(full_command, shell=True, check=True)
+
+            # Check if output.txt exists
+            if not os.path.isfile(student_output_file):
+                entry["message"] = f"{cmd}: FAIL - output.txt not created"
             else:
-                entry["message"] = f"{line}: FAIL - Output mismatch"
+                # Compare with expected.txt
+                if filecmp.cmp(expected_output_file, student_output_file, shallow=False):
+                    entry["message"] = f"{cmd}: PASS"
+                    entry["score"] = 1
+                    entry["status"] = "success"
+                else:
+                    entry["message"] = f"{cmd}: FAIL - output mismatch"
+
         except subprocess.CalledProcessError as e:
-            entry["message"] = f"{line}: FAIL - Command not found"
+            entry["message"] = f"{cmd}: FAIL - Command execution failed"
 
         overall["data"].append(entry)
+
 else:
     entry = copy.deepcopy(template)
     entry['message'] = f"answer.txt not found. Evaluation result not generated."
     overall["data"].append(entry)
 
-# Store evaluation results
-with open(jsonPath, 'w', encoding='utf-8') as f:
+# Write evaluation results
+with open(json_path, 'w', encoding='utf-8') as f:
     json.dump(overall, f, indent=4)
 
 # Show evaluation results
-with open(jsonPath, 'r', encoding='utf-8') as f:
+with open(json_path, 'r', encoding='utf-8') as f:
     for line in f.readlines():
         print(line)
-
